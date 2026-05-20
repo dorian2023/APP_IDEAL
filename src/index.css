@@ -1,0 +1,110 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-ideal/20 selection:text-ideal;
+    scroll-behavior: smooth;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-title font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  /* Glassmorphism Premium Effects */
+  .glass-nav {
+    @apply bg-white/75 backdrop-blur-lg border-b border-slate-200/50 shadow-sm;
+  }
+
+  .dark .glass-nav {
+    @apply bg-navy-900/85 backdrop-blur-lg border-b border-white/5 shadow-md;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-slate-100/80 shadow-lg shadow-slate-100/40;
+  }
+
+  .dark .glass-card {
+    @apply bg-navy-800/90 backdrop-blur-md border border-white/5 shadow-2xl;
+  }
+
+  /* Interactive Elements */
+  .btn-primary {
+    @apply relative overflow-hidden bg-ideal text-white font-medium px-6 py-3 rounded-2xl shadow-lg shadow-ideal/20 transition-all duration-300 hover:bg-ideal-hover hover:shadow-xl hover:shadow-ideal/30 active:scale-95 focus:outline-none focus:ring-2 focus:ring-ideal/50 focus:ring-offset-2 flex items-center justify-center gap-2;
+  }
+
+  .btn-secondary {
+    @apply bg-slate-100 text-slate-700 font-medium px-6 py-3 rounded-2xl border border-slate-200/50 transition-all duration-300 hover:bg-slate-200/70 active:scale-95 focus:outline-none flex items-center justify-center gap-2;
+  }
+
+  .dark .btn-secondary {
+    @apply bg-navy-700 text-slate-200 border-white/5 transition-all duration-300 hover:bg-navy-600/80 active:scale-95 focus:outline-none flex items-center justify-center gap-2;
+  }
+
+  .input-premium {
+    @apply w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-ideal focus:ring-2 focus:ring-ideal/10 transition-all duration-200;
+  }
+
+  .dark .input-premium {
+    @apply w-full px-4 py-3 rounded-2xl bg-navy-900 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-ideal focus:ring-2 focus:ring-ideal/20 transition-all duration-200;
+  }
+}
+
+/* Custom Scrollbar for tables and drawers */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20;
+}
+
+/* Shimmer animation for images loading */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.dark .animate-shimmer {
+  background: linear-gradient(90deg, #131b2e 25%, #1e294b 50%, #131b2e 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Fluid Page Fade in */
+.page-fade {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
