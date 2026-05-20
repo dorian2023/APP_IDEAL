@@ -19,9 +19,9 @@ interface WelcomeOverlayProps {
 export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ userEmail, perfil, onClose }) => {
   const [isVisible, setIsVisible] = useState(true);
 
-  const isAdmin = userEmail === 'doriangonzalez2019@gmail.com' || perfil?.rol === 'admin';
+  const isAdmin = userEmail === 'doriangonzalez2019@gmail.com' || userEmail === 'doriangonzalez2018@gmail.com' || perfil?.rol === 'admin';
   const displayNombre = isAdmin 
-    ? 'Dorian González' 
+    ? (perfil?.nombre_completo || 'Dorian González') 
     : (perfil?.nombre_completo || userEmail.split('@')[0]);
 
   useEffect(() => {

@@ -38,7 +38,7 @@ const MainAppContent: React.FC = () => {
         sessionStorage.setItem('welcomeShown_' + user.id, 'true');
         
         // Si es administrador, redirigir automáticamente al panel administrativo al ingresar
-        const isAdmin = user.email === 'doriangonzalez2019@gmail.com' || perfil?.rol === 'admin';
+        const isAdmin = user.email === 'doriangonzalez2019@gmail.com' || user.email === 'doriangonzalez2018@gmail.com' || perfil?.rol === 'admin';
         if (isAdmin) {
           setView('admin');
         }

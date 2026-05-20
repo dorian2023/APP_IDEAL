@@ -202,8 +202,8 @@ RETURNS TRIGGER AS $$
 DECLARE
     v_rol TEXT := 'cliente';
 BEGIN
-    -- Solo doriangonzalez2019@gmail.com es el administrador de esta aplicación
-    IF new.email = 'doriangonzalez2019@gmail.com' THEN
+    -- Solo doriangonzalez2019@gmail.com y doriangonzalez2018@gmail.com son los administradores de esta aplicación
+    IF new.email = 'doriangonzalez2019@gmail.com' OR new.email = 'doriangonzalez2018@gmail.com' THEN
         v_rol := 'admin';
     END IF;
 

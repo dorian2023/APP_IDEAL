@@ -169,7 +169,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Iniciando sesión simulada con correo en Modo Demo...', email);
       setLoading(true);
       
-      const isAdminEmail = email.toLowerCase() === 'doriangonzalez2019@gmail.com';
+      const isAdminEmail = email.toLowerCase() === 'doriangonzalez2019@gmail.com' || email.toLowerCase() === 'doriangonzalez2018@gmail.com';
       const mockUser = {
         id: isAdminEmail ? "mock-admin-id" : `mock-client-${Date.now()}`,
         email: email,
@@ -221,7 +221,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Creando cuenta simulada en Modo Demo...', email);
       setLoading(true);
       
-      const isAdminEmail = email.toLowerCase() === 'doriangonzalez2019@gmail.com';
+      const isAdminEmail = email.toLowerCase() === 'doriangonzalez2019@gmail.com' || email.toLowerCase() === 'doriangonzalez2018@gmail.com';
       const mockUser = {
         id: isAdminEmail ? "mock-admin-id" : `mock-client-${Date.now()}`,
         email: email,
