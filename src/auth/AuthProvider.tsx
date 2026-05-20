@@ -118,17 +118,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const mockUser = {
         id: "mock-admin-id",
-        email: "admin@conecaideal.com",
+        email: "doriangonzalez2019@gmail.com",
         user_metadata: {
-          full_name: "Administrador Ideal",
+          full_name: "Dorian González",
           avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop"
         }
       } as any;
 
       const mockPerfil: Perfil = {
         id: "mock-admin-id",
-        email: "admin@conecaideal.com",
-        nombre_completo: "Administrador Ideal",
+        email: "doriangonzalez2019@gmail.com",
+        nombre_completo: "Dorian González",
         avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop",
         rol: "admin",
         created_at: new Date().toISOString()
@@ -169,12 +169,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Iniciando sesión simulada con correo en Modo Demo...', email);
       setLoading(true);
       
-      const isAdminEmail = email.toLowerCase() === 'admin@conecaideal.com';
+      const isAdminEmail = email.toLowerCase() === 'doriangonzalez2019@gmail.com';
       const mockUser = {
         id: isAdminEmail ? "mock-admin-id" : `mock-client-${Date.now()}`,
         email: email,
         user_metadata: {
-          full_name: isAdminEmail ? "Administrador Ideal" : "Cliente Premium",
+          full_name: isAdminEmail ? "Dorian González" : "Cliente Premium",
           avatar_url: ""
         }
       } as any;
@@ -182,7 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const mockPerfil: Perfil = {
         id: mockUser.id,
         email: email,
-        nombre_completo: isAdminEmail ? "Administrador Ideal" : "Cliente Premium",
+        nombre_completo: isAdminEmail ? "Dorian González" : "Cliente Premium",
         avatar_url: null,
         rol: isAdminEmail ? "admin" : "cliente",
         created_at: new Date().toISOString()
@@ -221,7 +221,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Creando cuenta simulada en Modo Demo...', email);
       setLoading(true);
       
-      const isAdminEmail = email.toLowerCase() === 'admin@conecaideal.com';
+      const isAdminEmail = email.toLowerCase() === 'doriangonzalez2019@gmail.com';
       const mockUser = {
         id: isAdminEmail ? "mock-admin-id" : `mock-client-${Date.now()}`,
         email: email,

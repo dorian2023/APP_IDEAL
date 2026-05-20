@@ -288,7 +288,7 @@ export const LoginView: React.FC = () => {
           transition={{ delay: 1.2 }}
           className="text-center mt-4 text-[10px] text-slate-300 font-sans"
         >
-          Tip: Usa admin@conecaideal.com para acceso administrativo
+          Tip: Usa doriangonzalez2019@gmail.com para acceso administrativo (Demo Mode)
         </motion.p>
       </motion.div>
     </div>

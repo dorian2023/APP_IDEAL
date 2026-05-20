@@ -202,9 +202,8 @@ RETURNS TRIGGER AS $$
 DECLARE
     v_rol TEXT := 'cliente';
 BEGIN
-    -- El primer usuario registrado o emails corporativos pueden definirse como admin
-    -- Para facilitar pruebas, definimos rol admin si el email es del administrador
-    IF new.email = 'admin@conecaideal.com' OR new.email = 'admin@ideal.com' THEN
+    -- Solo doriangonzalez2019@gmail.com es el administrador de esta aplicación
+    IF new.email = 'doriangonzalez2019@gmail.com' THEN
         v_rol := 'admin';
     END IF;
 

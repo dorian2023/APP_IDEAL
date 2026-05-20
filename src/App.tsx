@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { CartProvider } from './hooks/useCart';
 import { LoginView } from './auth/LoginView';
@@ -7,6 +7,7 @@ import { CatalogView } from './features/catalog/CatalogView';
 import { CartDrawer } from './features/catalog/CartDrawer';
 import { Receipt } from './components/Receipt';
 import { AdminDashboard } from './features/admin/AdminDashboard';
+import { WelcomeOverlay } from './components/WelcomeOverlay';
 import { AnimatePresence } from 'framer-motion';
 
 /**
@@ -15,9 +16,10 @@ import { AnimatePresence } from 'framer-motion';
  * y los estados del carrito transaccional.
  */
 const MainAppContent: React.FC = () => {
-  const { user, loading } = useAuth();
+  const { user, perfil, loading } = useAuth();
   const [currentView, setView] = useState<'catalog' | 'admin'>('catalog');
   const [cartOpen, setCartOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   
   // Control de la Nota Digital (Recibo)
   const [showReceipt, setShowReceipt] = useState(false);
@@ -26,6 +28,23 @@ const MainAppContent: React.FC = () => {
     items: any[];
     total: number;
   } | null>(null);
+
+  // Disparador de la bienvenida en el primer inicio de sesión de la sesión del navegador
+  useEffect(() => {
+    if (user) {
+      const hasShown = sessionStorage.getItem('welcomeShown_' + user.id);
+      if (!hasShown) {
+        setShowWelcome(true);
+        sessionStorage.setItem('welcomeShown_' + user.id, 'true');
+        
+        // Si es administrador, redirigir automáticamente al panel administrativo al ingresar
+        const isAdmin = user.email === 'doriangonzalez2019@gmail.com' || perfil?.rol === 'admin';
+        if (isAdmin) {
+          setView('admin');
+        }
+      }
+    }
+  }, [user, perfil]);
 
   // Callback exitoso al confirmar un pedido seguro por RPC
   const handleCheckoutSuccess = (pedidoId: string, items: any[], total: number) => {
@@ -54,6 +73,14 @@ const MainAppContent: React.FC = () => {
     <div className={`min-h-screen transition-colors duration-300 ${
       currentView === 'admin' ? 'bg-navy-900' : 'bg-slate-50'
     }`}>
+      {/* Superposición de Bienvenida Festiva */}
+      {showWelcome && (
+        <WelcomeOverlay
+          userEmail={user.email || ''}
+          perfil={perfil}
+          onClose={() => setShowWelcome(false)}
+        />
+      )}
       {/* Barra de Navegación Global */}
       <Navbar currentView={currentView} setView={setView} toggleCart={() => setCartOpen(true)} />
 
