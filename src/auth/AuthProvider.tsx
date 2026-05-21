@@ -40,7 +40,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   // Consultar perfil de base de datos
-  const fetchPerfil = async (uid: string) => {
+  const ADMIN_EMAILS = ['doriangonzalez2019@gmail.com', 'doriangonzalez2018@gmail.com'];
+
+  // Consultar perfil de base de datos.
+  // @param uid - UUID del usuario autenticado
+  // @param userEmail - Email del usuario (pasado directamente para evitar una segunda llamada de red)
+  const fetchPerfil = async (uid: string, userEmail?: string) => {
     try {
       const { data, error } = await supabase
         .from('perfiles')
@@ -48,20 +53,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('id', uid)
         .single();
       
-      // Obtener email del usuario actual autenticado como fallback
-      const currentUserSession = await supabase.auth.getUser();
-      const currentEmail = currentUserSession.data.user?.email || '';
-      const isAdminEmail = currentEmail.toLowerCase() === 'doriangonzalez2019@gmail.com' || currentEmail.toLowerCase() === 'doriangonzalez2018@gmail.com';
+      const emailLower = (userEmail || '').toLowerCase();
+      const isAdminEmail = ADMIN_EMAILS.includes(emailLower);
 
       if (error) {
-        console.warn('Perfil no encontrado en base de datos o error de carga:', error.message);
-        if (isAdminEmail && currentUserSession.data.user) {
-          // Forzar perfil admin simulado para evitar bloqueos si no se ha sincronizado la BD
+        console.warn('Perfil no encontrado en base de datos:', error.message);
+        if (isAdminEmail && userEmail) {
+          // Perfil admin fallback si la BD aun no lo ha sincronizado
           const fallbackPerfil: Perfil = {
             id: uid,
-            email: currentEmail,
-            nombre_completo: currentUserSession.data.user.user_metadata?.full_name || 'Admin Ideal',
-            avatar_url: currentUserSession.data.user.user_metadata?.avatar_url || null,
+            email: userEmail,
+            nombre_completo: 'Admin Ideal',
+            avatar_url: null,
             telefono: '',
             direccion: '',
             rol: 'admin',
@@ -75,8 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const userPerfil = data as Perfil;
-      // Forzar rol admin si el email es uno de los administradores autorizados
-      if (isAdminEmail || userPerfil.email?.toLowerCase() === 'doriangonzalez2019@gmail.com' || userPerfil.email?.toLowerCase() === 'doriangonzalez2018@gmail.com') {
+      // Garantizar rol admin si el email coincide, independientemente del valor en BD
+      if (isAdminEmail || ADMIN_EMAILS.includes((userPerfil.email || '').toLowerCase())) {
         userPerfil.rol = 'admin';
       }
       setPerfil(userPerfil);
@@ -88,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshPerfil = async () => {
     if (user) {
-      await fetchPerfil(user.id);
+      await fetchPerfil(user.id, user.email || undefined);
     }
   };
 
@@ -101,11 +104,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Failsafe timeout to prevent permanent loading screens on slow mobile networks or blocked third-party storage
+    // Failsafe: evitar pantalla de carga permanente en redes lentas o sin conexión
     const failsafeTimeout = setTimeout(() => {
       console.warn('Advertencia: La inicialización de Supabase superó el tiempo límite. Forzando desactivación de pantalla de carga.');
       setLoading(false);
-    }, 3500);
+    }, 8000);
 
     let subscription: any = null;
 
@@ -115,7 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           setUser(session.user);
-          await fetchPerfil(session.user.id);
+          await fetchPerfil(session.user.id, session.user.email || undefined);
         }
       } catch (err) {
         console.error('Error al inicializar sesión activa:', err);
@@ -133,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           if (session?.user) {
             setUser(session.user);
-            await fetchPerfil(session.user.id);
+            await fetchPerfil(session.user.id, session.user.email || undefined);
           } else {
             setUser(null);
             setPerfil(null);
@@ -259,7 +262,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
       if (data.user) {
         setUser(data.user);
-        await fetchPerfil(data.user.id);
+        await fetchPerfil(data.user.id, data.user.email || undefined);
       }
     } catch (err) {
       console.error('Error al iniciar sesión con credenciales:', err);
