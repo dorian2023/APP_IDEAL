@@ -10,6 +10,8 @@ export interface Perfil {
   email: string;
   nombre_completo: string | null;
   avatar_url: string | null;
+  telefono?: string | null;
+  direccion?: string | null;
   rol: 'cliente' | 'admin';
   created_at: string;
 }
@@ -46,12 +48,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('id', uid)
         .single();
       
+      // Obtener email del usuario actual autenticado como fallback
+      const currentUserSession = await supabase.auth.getUser();
+      const currentEmail = currentUserSession.data.user?.email || '';
+      const isAdminEmail = currentEmail.toLowerCase() === 'doriangonzalez2019@gmail.com' || currentEmail.toLowerCase() === 'doriangonzalez2018@gmail.com';
+
       if (error) {
-        console.warn('Perfil no encontrado en base de datos:', error.message);
-        setPerfil(null);
+        console.warn('Perfil no encontrado en base de datos o error de carga:', error.message);
+        if (isAdminEmail && currentUserSession.data.user) {
+          // Forzar perfil admin simulado para evitar bloqueos si no se ha sincronizado la BD
+          const fallbackPerfil: Perfil = {
+            id: uid,
+            email: currentEmail,
+            nombre_completo: currentUserSession.data.user.user_metadata?.full_name || 'Admin Ideal',
+            avatar_url: currentUserSession.data.user.user_metadata?.avatar_url || null,
+            telefono: '',
+            direccion: '',
+            rol: 'admin',
+            created_at: new Date().toISOString()
+          };
+          setPerfil(fallbackPerfil);
+        } else {
+          setPerfil(null);
+        }
         return;
       }
-      setPerfil(data as Perfil);
+
+      const userPerfil = data as Perfil;
+      // Forzar rol admin si el email es uno de los administradores autorizados
+      if (isAdminEmail || userPerfil.email?.toLowerCase() === 'doriangonzalez2019@gmail.com' || userPerfil.email?.toLowerCase() === 'doriangonzalez2018@gmail.com') {
+        userPerfil.rol = 'admin';
+      }
+      setPerfil(userPerfil);
     } catch (err) {
       console.error('Excepción al cargar perfil del usuario:', err);
       setPerfil(null);
@@ -73,6 +101,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
+    // Failsafe timeout to prevent permanent loading screens on slow mobile networks or blocked third-party storage
+    const failsafeTimeout = setTimeout(() => {
+      console.warn('Advertencia: La inicialización de Supabase superó el tiempo límite. Forzando desactivación de pantalla de carga.');
+      setLoading(false);
+    }, 3500);
+
+    let subscription: any = null;
+
     // 1. Verificar sesión activa inicial
     const initializeAuth = async () => {
       try {
@@ -84,27 +120,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (err) {
         console.error('Error al inicializar sesión activa:', err);
       } finally {
+        clearTimeout(failsafeTimeout);
         setLoading(false);
       }
     };
 
-    initializeAuth();
+    try {
+      initializeAuth();
 
-    // 2. Escuchar cambios de autenticación (Login, Logout, Token refrescos)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setLoading(true);
-      if (session?.user) {
-        setUser(session.user);
-        await fetchPerfil(session.user.id);
-      } else {
-        setUser(null);
-        setPerfil(null);
-      }
+      // 2. Escuchar cambios de autenticación (Login, Logout, Token refrescos)
+      const { data: res } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        try {
+          if (session?.user) {
+            setUser(session.user);
+            await fetchPerfil(session.user.id);
+          } else {
+            setUser(null);
+            setPerfil(null);
+          }
+        } catch (e) {
+          console.error('Error en onAuthStateChange handler:', e);
+        } finally {
+          clearTimeout(failsafeTimeout);
+          setLoading(false);
+        }
+      });
+      subscription = res?.subscription;
+    } catch (err) {
+      console.error('Error al configurar observadores de autenticación:', err);
+      clearTimeout(failsafeTimeout);
       setLoading(false);
-    });
+    }
 
     return () => {
-      subscription.unsubscribe();
+      clearTimeout(failsafeTimeout);
+      if (subscription) {
+        subscription.unsubscribe();
+      }
     };
   }, []);
 
@@ -130,6 +182,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: "doriangonzalez2019@gmail.com",
         nombre_completo: "Dorian González",
         avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop",
+        telefono: "+58 412 1234567",
+        direccion: "Av. Principal Bellagio, Casa Ideal #24",
         rol: "admin",
         created_at: new Date().toISOString()
       };
@@ -184,6 +238,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: email,
         nombre_completo: isAdminEmail ? "Dorian González" : "Cliente Premium",
         avatar_url: null,
+        telefono: isAdminEmail ? "+58 412 1234567" : "+58 424 9876543",
+        direccion: isAdminEmail ? "Av. Principal Bellagio, Casa Ideal #24" : "Residencias La Joya, Apto 4B",
         rol: isAdminEmail ? "admin" : "cliente",
         created_at: new Date().toISOString()
       };
@@ -236,6 +292,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: email,
         nombre_completo: nombreCompleto,
         avatar_url: null,
+        telefono: "",
+        direccion: "",
         rol: isAdminEmail ? "admin" : "cliente",
         created_at: new Date().toISOString()
       };
@@ -305,7 +363,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const isAdmin = perfil?.rol === 'admin';
+  const isAdmin = user?.email?.toLowerCase() === 'doriangonzalez2019@gmail.com' || 
+                  user?.email?.toLowerCase() === 'doriangonzalez2018@gmail.com' || 
+                  perfil?.rol === 'admin';
 
   return (
     <AuthContext.Provider value={{ user, perfil, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut, isAdmin, refreshPerfil }}>

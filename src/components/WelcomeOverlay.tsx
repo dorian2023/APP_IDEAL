@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Sparkles, Shield, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import type { Perfil } from '../auth/AuthProvider';
 
 interface WelcomeOverlayProps {
@@ -100,25 +100,17 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ userEmail, perfi
                 initial={{ scale: 0.5, rotate: -45, opacity: 0 }}
                 animate={{ scale: 1, rotate: 0, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.15 }}
-                className={`relative inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg text-white ${
-                  isAdmin 
-                    ? 'bg-gradient-to-tr from-amber-500 to-yellow-400 shadow-amber-500/20' 
-                    : 'bg-gradient-to-tr from-ideal to-ideal-hover shadow-ideal/20'
-                }`}
+                className="relative inline-flex items-center justify-center w-20 h-20 rounded-full shadow-lg bg-white border border-slate-100/85 shadow-slate-200/50 overflow-hidden"
               >
-                {isAdmin ? (
-                  <Shield className="h-10 w-10 animate-pulse" />
-                ) : (
-                  <ShoppingBag className="h-10 w-10" />
-                )}
+                <img src="/logo.png" alt="Logo Ideal" className="w-full h-full object-cover" />
                 
                 {/* Estrellas decorativas flotantes */}
                 <motion.div
                   animate={{ y: [0, -6, 0], scale: [1, 1.2, 1] }}
                   transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                  className="absolute -top-2 -right-2 bg-rose-500 text-white p-1 rounded-lg shadow-md"
+                  className="absolute -top-2 -right-2 bg-rose-500 text-white p-1.5 rounded-lg shadow-md"
                 >
-                  <Sparkles className="h-4 w-4" />
+                  <Sparkles className="h-3.5 w-3.5" />
                 </motion.div>
               </motion.div>
             </div>

@@ -14,6 +14,7 @@ export interface Product {
 
 interface CardProps {
   product: Product;
+  onOpenDetails?: (product: Product) => void;
 }
 
 /**
@@ -21,7 +22,7 @@ interface CardProps {
  * Implementa bordes 3xl, sombras suaves, micro-interacciones al agregar al carrito,
  * y adaptabilidad responsiva.
  */
-export const Card: React.FC<CardProps> = ({ product }) => {
+export const Card: React.FC<CardProps> = ({ product, onOpenDetails }) => {
   const { addToCart, cart } = useCart();
   const [isAdded, setIsAdded] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -59,9 +60,12 @@ export const Card: React.FC<CardProps> = ({ product }) => {
 
   return (
     <motion.div
+      onClick={() => onOpenDetails?.(product)}
       whileHover={{ y: -8 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="glass-card rounded-3xl overflow-hidden shadow-lg border border-slate-100 hover:shadow-2xl transition-shadow flex flex-col h-full group"
+      className={`glass-card rounded-3xl overflow-hidden shadow-lg border border-slate-100 hover:shadow-2xl transition-shadow flex flex-col h-full group ${
+        onOpenDetails ? 'cursor-pointer' : ''
+      }`}
     >
       {/* Contenedor de Imagen con Bordes 3xl */}
       <div className="relative aspect-square m-3 rounded-2xl overflow-hidden bg-slate-100">

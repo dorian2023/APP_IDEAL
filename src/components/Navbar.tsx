@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { useCart } from '../hooks/useCart';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Sparkles, LogOut, LayoutDashboard, Store, User as UserIcon } from 'lucide-react';
+import { ShoppingCart, LogOut, LayoutDashboard, Store, User as UserIcon } from 'lucide-react';
+import { UserProfileModal } from './UserProfileModal';
 
 interface NavbarProps {
   currentView: 'catalog' | 'admin';
@@ -15,18 +16,18 @@ interface NavbarProps {
  * Se adapta de forma inteligente al rol del usuario y proporciona micro-interacciones fluidas.
  */
 export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, toggleCart }) => {
-  const { perfil, signOut, isAdmin } = useAuth();
+  const { user, perfil, signOut, isAdmin, refreshPerfil } = useAuth();
   const { cartCount } = useCart();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
     <nav className="fixed top-0 left-0 right-0 h-20 z-40 flex items-center justify-between px-6 md:px-12 glass-nav">
-      {/* Logotipo Ideal con micro-animación de destello */}
       <motion.div 
         onClick={() => setView('catalog')}
         className="flex items-center gap-2 cursor-pointer select-none group"
       >
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-ideal text-white shadow-md shadow-ideal/10 group-hover:rotate-6 transition-transform duration-300">
-          <Sparkles className="h-5 w-5" />
+        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm border border-slate-100/50 group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+          <img src="/logo.png" alt="Logo Ideal" className="w-full h-full object-cover" />
         </div>
         <span className="text-xl font-bold tracking-tight text-slate-900 font-title">
           Ideal
@@ -104,7 +105,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, toggleCart
 
         {/* Perfil del Usuario y Cierre de Sesión */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 select-none">
+          <motion.button
+            onClick={() => setProfileOpen(true)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center gap-2 select-none hover:bg-slate-50 p-1.5 rounded-2xl border border-transparent hover:border-slate-100 transition-all cursor-pointer"
+            title="Ver mi perfil"
+          >
             {perfil?.avatar_url ? (
               <img
                 src={perfil.avatar_url}
@@ -123,12 +130,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, toggleCart
                 {perfil?.nombre_completo || 'Cliente Ideal'}
               </span>
               <span className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${
-                isAdmin ? 'text-indigo-600' : 'text-slate-400'
+                isAdmin ? 'text-amber-600' : 'text-slate-405'
               }`}>
                 {perfil?.rol || 'Cliente'}
               </span>
             </div>
-          </div>
+          </motion.button>
 
           {/* Botón de Logout */}
           <motion.button
@@ -142,6 +149,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, toggleCart
           </motion.button>
         </div>
       </div>
+
+      <UserProfileModal
+        isOpen={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        perfil={perfil}
+        userEmail={user?.email || ''}
+        onProfileUpdated={refreshPerfil}
+      />
     </nav>
   );
 };

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { LoginButton } from './LoginButton';
 import { useAuth } from './AuthProvider';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Sparkles, Mail, Lock, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 /**
  * Vista de Login Premium de Ideal.
@@ -74,24 +74,16 @@ export const LoginView: React.FC = () => {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-            className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-ideal/10 text-ideal mb-4"
+            className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white border border-slate-100/50 shadow-sm mb-4 overflow-hidden"
           >
-            <Sparkles className="h-7 w-7" />
+            <img src="/logo.png" alt="Logo Ideal" className="w-full h-full object-cover" />
           </motion.div>
           
-          <motion.h1
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-3xl font-bold tracking-tight text-slate-900 font-title"
-          >
-            Ideal
-          </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="text-[14px] text-slate-500 mt-1 font-sans"
+            transition={{ delay: 0.2 }}
+            className="text-[14px] text-slate-500 mt-2 font-sans"
           >
             Sistemas Digitales de Alta Gama
           </motion.p>

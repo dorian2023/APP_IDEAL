@@ -3,6 +3,7 @@ import { supabase } from '../../config/supabase';
 import { Card } from '../../components/Card';
 import type { Product } from '../../components/Card';
 import { ShoppingBag, Database, Sparkles } from 'lucide-react';
+import { ProductDetailsModal } from '../../components/ProductDetailsModal';
 
 // Productos de Demostración de Alta Gama (Campaña de Junio)
 const MOCK_PRODUCTS: Product[] = [
@@ -65,6 +66,13 @@ export const CatalogView: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
+  const handleOpenDetails = (product: Product) => {
+    setSelectedProduct(product);
+    setDetailsOpen(true);
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -87,19 +95,23 @@ export const CatalogView: React.FC = () => {
           .order('nombre', { ascending: true });
 
         if (error) {
-          throw error;
+          console.warn('Error de Supabase al cargar productos, usando modo Demo:', error.message);
+          setProducts(MOCK_PRODUCTS);
+          setIsDemoMode(true);
+          return;
         }
 
         if (data && data.length > 0) {
           setProducts(data as Product[]);
           setIsDemoMode(false);
         } else {
-          // Si no hay productos en la tabla, activamos modo de demostración
+          // Tabla vacía: usar productos demo y notificar al admin
+          console.info('La tabla productos está vacía. Mostrando catálogo de demostración.');
           setProducts(MOCK_PRODUCTS);
           setIsDemoMode(true);
         }
       } catch (err) {
-        console.warn('Conectando en Modo Demo (Base de datos remota no inicializada o inaccesible).');
+        console.warn('Excepción al cargar catálogo, usando Modo Demo:', err);
         setProducts(MOCK_PRODUCTS);
         setIsDemoMode(true);
       } finally {
@@ -169,10 +181,17 @@ export const CatalogView: React.FC = () => {
         /* Listado Oficial */
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {products.map(product => (
-            <Card key={product.id} product={product} />
+            <Card key={product.id} product={product} onOpenDetails={handleOpenDetails} />
           ))}
         </div>
       )}
+
+      {/* Modal de Detalle de Producto Premium */}
+      <ProductDetailsModal
+        isOpen={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        product={selectedProduct}
+      />
     </div>
   );
 };

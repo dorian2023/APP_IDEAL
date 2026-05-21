@@ -26,6 +26,8 @@ CREATE TABLE public.perfiles (
     email TEXT UNIQUE NOT NULL,
     nombre_completo TEXT,
     avatar_url TEXT,
+    telefono TEXT,
+    direccion TEXT,
     rol TEXT NOT NULL DEFAULT 'cliente' CHECK (rol IN ('cliente', 'admin')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -129,6 +131,10 @@ CREATE POLICY "Permitir a admins actualizar perfiles" ON public.perfiles
         EXISTS (SELECT 1 FROM public.perfiles WHERE id = auth.uid() AND rol = 'admin')
     );
 
+CREATE POLICY "Permitir a usuarios actualizar su propio perfil" ON public.perfiles
+    FOR UPDATE USING (auth.uid() = id)
+    WITH CHECK (auth.uid() = id);
+
 -- --- POLÍTICAS DE PRODUCTOS ---
 CREATE POLICY "Permitir a cualquiera ver catálogo de productos" ON public.productos
     FOR SELECT USING (true);
@@ -207,12 +213,14 @@ BEGIN
         v_rol := 'admin';
     END IF;
 
-    INSERT INTO public.perfiles (id, email, nombre_completo, avatar_url, rol)
+    INSERT INTO public.perfiles (id, email, nombre_completo, avatar_url, telefono, direccion, rol)
     VALUES (
         new.id,
         new.email,
         COALESCE(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', 'Cliente Ideal'),
         COALESCE(new.raw_user_meta_data->>'avatar_url', ''),
+        COALESCE(new.raw_user_meta_data->>'phone', new.phone, ''),
+        COALESCE(new.raw_user_meta_data->>'address', ''),
         v_rol
     );
     RETURN NEW;
